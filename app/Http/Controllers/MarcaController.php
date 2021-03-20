@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class MarcaController extends Controller
 {
+
+    public function __construct(Marca $marca)
+    {
+        $this->marca = $marca;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +20,8 @@ class MarcaController extends Controller
      */
     public function index()
     {
-        $marcas = Marca::all();
+        //$marcas = Marca::all();
+        $marcas = $this->marcas->all();
         return $marcas;
     }
 
@@ -35,7 +42,7 @@ class MarcaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
+    {
         $marca = Marca::create($request->all());
         return $marca;
     }
@@ -47,7 +54,7 @@ class MarcaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Marca $marca)
-    {   
+    {
         return $marca;
     }
 
@@ -70,7 +77,7 @@ class MarcaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Marca $marca)
-    {   
+    {
         $marca->update($request->all());
         return $marca;
     }
@@ -82,7 +89,7 @@ class MarcaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Marca $marca)
-    {       
+    {
         // $nome = $marca['nome'];
         $nome = 'Toyota';
         $marca->delete();
