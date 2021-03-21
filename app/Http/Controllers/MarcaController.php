@@ -21,18 +21,8 @@ class MarcaController extends Controller
     public function index()
     {
         //$marcas = Marca::all();
-        $marcas = $this->marcas->all();
-        return $marcas;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $marcas = $this->marca->all();
+        return response()->json($marcas, 200);
     }
 
     /**
@@ -42,42 +32,52 @@ class MarcaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $marca = Marca::create($request->all());
-        return $marca;
+    {   
+        $regras = [
+            'nome' => 'required|unique:marcas',
+            'imagem' => 'required'
+        ];
+
+        $callback = [
+            'required' => 'O campo :attribute é obrigatório!',
+            'nome.unique' => 'O nome da marca já existe!'
+        ];
+
+        $request->validate($regras, $callback);
+
+        $store = $this->marca->create($request->all());
+        
+        return response()->json($store, 201);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Marca  $marca
+     * @param  Integer
      * @return \Illuminate\Http\Response
      */
-    public function show(Marca $marca)
+    public function show($id)
     {
-        return $marca;
-    }
+        $marcas = $this->marca->find($id);
+        if ($marcas === null)
+            return response()->json(['error' => 'Registro não encontrado.'], 404);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Marca  $marca
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Marca $marca)
-    {
-        //
+        return response()->json($marcas, 201);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Marca  $marca
+     * @param  Integer
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Marca $marca)
+    public function update(Request $request, $id)
     {
+        $marca = $this->marca->find($id);
+        if ($marca === null)
+            return response()->json(['error' => 'Registro não encontrado/atualizado'], 404);
+
         $marca->update($request->all());
         return $marca;
     }
@@ -85,16 +85,18 @@ class MarcaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Marca  $marca
+     * @param  Integer
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Marca $marca)
+    public function destroy($id)
     {
-        // $nome = $marca['nome'];
-        $nome = 'Toyota';
-        $marca->delete();
-        // $arr = ['success:' => 'A marca ' . $nome . ' foi deletada com sucesso!'];
-        // dd($arr);
-        return ['success:' => 'A marca foi deletada com sucesso!'];
+        $marcas = $this->marca->find($id);
+        $nome = $marcas->getAttributes()['nome'];
+
+        if ($marcas === null)
+            return response()->json(['error' => 'Não foi possível deletar o registro'], 404);
+
+        $marcas->delete();
+        return ['success:' => 'A marca ' . $nome . ' foi deletada com sucesso!'];
     }
 }
